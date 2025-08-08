@@ -17,6 +17,6 @@ Users can add, mark, and delete tasks with a clean, modern UI.
 ---
 
 ## 🚀 Live Demo
-🔗 [Click here to play the quiz!](https://pragathivaishnavi11.github.io/Todo-list-Task2/)
+🔗 [Click here to make your Todo-list](https://pragathivaishnavi11.github.io/Todo-list-Task2/)
 
 

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸 Anime To-Do List</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        display: flex;
+        height: 100vh;
+        background: linear-gradient(to bottom, #ffeaf4, #c6f1ff);
+        overflow: hidden;
+    }
+
+    /* Layout */
+    .left-panel {
+        flex: 1;
+        background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        backdrop-filter: blur(15px);
+        background: rgba(255, 255, 255, 0.4);
+        padding: 20px;
+        box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+  
+    .petal {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-image: url('https://tse3.mm.bing.net/th/id/OIP.HulkyVorXa7U6O986PnasgHaGn?pid=Api&P=0&h=180');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: fall linear infinite;
+    opacity: 0.8;
+}
+
+    @keyframes fall {
+        0% { transform: translateY(-10%) rotate(0deg); }
+        100% { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    /* Task List */
+    #taskList {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .task {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .task.completed {
+        opacity: 0.6;
+        text-decoration: line-through;
+    }
+
+    .task-text {
+        flex: 1;
+        margin-left: 10px;
+    }
+
+    .delete-btn {
+        background: #ff6b81;
+        border: none;
+        padding: 8px 12px;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .delete-btn:hover {
+        background: #ff4d6d;
+    }
+
+    /* Input Area */
+    .input-area {
+        display: flex;
+        margin-top: 10px;
+    }
+    #taskInput {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 25px 0 0 25px;
+        outline: none;
+        font-size: 1rem;
+    }
+    #addBtn {
+        background: #a29bfe;
+        border: none;
+        padding: 12px 20px;
+        color: white;
+        border-radius: 0 25px 25px 0;
+        cursor: pointer;
+    }
+    #addBtn:hover {
+        background: #6c5ce7;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        body { flex-direction: column; }
+        .left-panel { display: none; }
+    }
+</style>
+</head>
+<body>
+
+<div class="left-panel" id="leftPanel"></div>
+
+<div class="right-panel">
+    <h1>🌸 My Anime To-Do List</h1>
+    <div id="taskList"></div>
+    <div class="input-area">
+        <input type="text" id="taskInput" placeholder="Type your task...">
+        <button id="addBtn">Add</button>
+    </div>
+</div>
+
+<script>
+    let tasks = [];
+
+    function addTask() {
+        const input = document.getElementById('taskInput');
+        const text = input.value.trim();
+        if (text === '') {
+            alert('Please enter a task!');
+            return;
+        }
+        const task = { id: Date.now(), text, completed: false };
+        tasks.push(task);
+        saveTasks();
+        input.value = '';
+        renderTasks();
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(t => t.id !== id);
+        saveTasks();
+        renderTasks();
+    }
+
+    function toggleTask(id) {
+        tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+        saveTasks();
+        renderTasks();
+    }
+
+    function renderTasks() {
+        const list = document.getElementById('taskList');
+        list.innerHTML = tasks.map(task => `
+            <div class="task ${task.completed ? 'completed' : ''}">
+                <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                <span class="task-text">${task.text}</span>
+                <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+            </div>
+        `).join('');
+    }
+
+    function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+        const stored = localStorage.getItem('tasks');
+        if (stored) tasks = JSON.parse(stored);
+        renderTasks();
+    }
+
+    // Sakura animation
+    function createPetal() {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        petal.style.left = Math.random() * 100 + 'vw';
+        petal.style.animationDuration = (Math.random() * 5 + 5) + 's';
+        document.getElementById('leftPanel').appendChild(petal);
+        setTimeout(() => petal.remove(), 10000);
+    }
+    setInterval(createPetal, 500);
+
+    document.getElementById('addBtn').addEventListener('click', addTask);
+    document.getElementById('taskInput').addEventListener('keypress', e => {
+        if (e.key === 'Enter') addTask();
+    });
+
+    window.onload = loadTasks;
+</script>
+</body>B
+</html>
